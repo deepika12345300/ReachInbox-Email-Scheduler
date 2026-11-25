@@ -1,0 +1,73 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String?
+  email     String   @unique
+  googleId  String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  senders          Sender[]
+  slackConnections SlackConnection[]
+}
+
+model Sender {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  emails Email[]
+}
+
+model Email {
+  id          String   @id @default(uuid())
+  subject     String
+  body        String
+  scheduledAt DateTime
+  status      String   @default("SCHEDULED")
+  createdAt   DateTime @default(now())
+  sentAt      DateTime?
+
+  senderId String
+  sender   Sender @relation(fields: [senderId], references: [id])
+
+  recipients EmailRecipient[]
+}
+
+model EmailRecipient {
+  id      String @id @default(uuid())
+  address String
+  status  String @default("PENDING")
+
+  emailId String
+  email   Email @relation(fields: [emailId], references: [id], onDelete: Cascade)
+}
+
+model SlackConnection {
+  id          String   @id @default(uuid())
+  teamId      String
+  teamName    String?
+  botUserId   String?
+  accessToken String
+  scope       String?
+  createdAt   DateTime @default(now())
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, teamId])
+}
+

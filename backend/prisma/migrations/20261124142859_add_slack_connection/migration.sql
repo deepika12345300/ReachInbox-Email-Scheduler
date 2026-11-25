@@ -1,0 +1,19 @@
+-- CreateTable
+CREATE TABLE "SlackConnection" (
+    "id" TEXT NOT NULL,
+    "teamId" TEXT NOT NULL,
+    "teamName" TEXT,
+    "botUserId" TEXT,
+    "accessToken" TEXT NOT NULL,
+    "scope" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "userId" TEXT NOT NULL,
+
+    CONSTRAINT "SlackConnection_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SlackConnection_userId_teamId_key" ON "SlackConnection"("userId", "teamId");
+
+-- AddForeignKey
+ALTER TABLE "SlackConnection" ADD CONSTRAINT "SlackConnection_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
